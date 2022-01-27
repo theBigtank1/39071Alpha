@@ -2,16 +2,29 @@
 # API Interface Code
 # Written by Tanner Krauter
 
+#imports the spotipy library
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import json
+import webbrowser
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="0e82adf631c444569cce986dea9e374c",
-                                                           client_secret="----"))
 
-runCode = True
-count = 0
-while runCode:
-    count = count + 1
-    if count == 50:
-        runCode = False
-print(count)
+#Define key variables
+username = 'tawseefpatel'
+clientID = '0e82adf631c444569cce986dea9e374c'
+clientSecret = '----'
+redirectURI = 'https://www.google.ca/'
+
+
+#Creates OAuth object for Spotify
+oauth_object = spotipy.SpotifyOAuth(clientID, clientSecret, redirectURI)
+
+#Creates a spotify token
+token_dict = oauth_object.get_cached_token()
+token = token_dict['access_token']
+
+#Create spotify object to interact with
+sp = spotipy.Spotify(auth=token)
+
+user = sp.current_user()
+
+print(sp.artist('spotify:artist:3jOstUTkEu2JkjvRdBA5Gu'))
