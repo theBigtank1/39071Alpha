@@ -2,14 +2,14 @@
 # API Interface Code
 # Written by Tanner Krauter
 
-# TODO:  get input info and create events
+# TODO: get input info and modify event triggers, GUI Implementation (Ranishka),
 
 
 # imports the spotipy library
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import json
 import webbrowser
+
 
 # Define key variables
 username = 'tawseefpatel'
@@ -30,10 +30,14 @@ token = token_dict['access_token']
 # Create spotify object to interact with
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=clientID, client_secret=clientSecret, redirect_uri=redirectURI,
                                                scope="user-modify-playback-state user-read-currently-playing user-read-playback-state"))
+
+# Opens spotify webpage on device
+webbrowser.open("https://open.spotify.com/", new=1, autoraise=False)
+
 # Gets the device ID of the current device
 devices = sp.devices()
 device_id = devices['devices'][0]['id']
-print(device_id)
+# print(device_id)
 
 # Makes the current device active for the software to interact with
 sp.transfer_playback(device_id)
@@ -133,3 +137,4 @@ while loop_running:
         loop_running = False
     else:
         print("Invalid Command")
+        
