@@ -2,13 +2,14 @@
 # API Interface Code
 # Written by Tanner Krauter
 
-# TODO: get input info and modify event triggers, GUI Implementation (Ranishka),
+# TODO: get input info and modify event triggers, GUI Implementation (Ranishka)
 
 
 # imports the spotipy library
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import webbrowser
+import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
 
 
 # Define key variables
@@ -96,6 +97,11 @@ def get_most_recent_podcast(show_id):
     return full_id
 
 
+GPIO.setwarnings(False)  # Ignore warning for now
+GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
+GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 10 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(10, GPIO.RISING, callback=play_pause_song(playback_state))  # Setup event on pin 10 rising edge
+
 # Main software loop
 while loop_running:
     song_info = get_current_song_info()
@@ -129,7 +135,7 @@ while loop_running:
         skip_song()
     elif request.lower() == "return":
         return_to_song()
-    elif request.lower() == "pause/play":
+    elif GPIO.input(10) == GPIO.RISING:
         playback_state = play_pause_song(playback_state)
     elif request.lower() == "end session":
         if playback_state:
@@ -137,4 +143,5 @@ while loop_running:
         loop_running = False
     else:
         print("Invalid Command")
-        
+
+GPIO.cleanup()
