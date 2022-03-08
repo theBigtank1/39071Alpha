@@ -21,13 +21,6 @@ playback_state = False
 loop_running = True
 track_info = ""
 
-# Creates OAuth object for Spotify
-oauth_object = spotipy.SpotifyOAuth(clientID, clientSecret, redirectURI)
-
-# Creates a spotify token
-token_dict = oauth_object.get_cached_token()
-token = token_dict['access_token']
-
 # Create spotify object to interact with
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=clientID, client_secret=clientSecret, redirect_uri=redirectURI,
                                                scope="user-modify-playback-state user-read-currently-playing user-read-playback-state"))
