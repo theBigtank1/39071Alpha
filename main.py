@@ -15,7 +15,7 @@ import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
 # Define key variables
 username = 'tawseefpatel'
 clientID = '0e82adf631c444569cce986dea9e374c'
-clientSecret = '23c087bdae324369913525389b46ea0e'
+clientSecret = '----'
 redirectURI = 'https://www.google.ca/'
 playback_state = False
 loop_running = True
