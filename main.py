@@ -10,6 +10,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import webbrowser
 import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
+from mfrc522 import SimpleMFRC522
 
 
 # Define key variables
@@ -21,6 +22,7 @@ playback_state = False
 loop_running = True
 track_info = ""
 current_volume = 100
+reader = SimpleMFRC522()
 
 # Create spotify object to interact with
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=clientID, client_secret=clientSecret, redirect_uri=redirectURI,
@@ -115,53 +117,27 @@ def volume_down(volume):
 
 GPIO.setwarnings(False)  # Ignore warning for now
 GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
+
+# Return button - on Pin 9
+GPIO.setup(9, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 9 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(9, GPIO.RISING, callback=return_to_song())  # Setup event on pin 9 rising edge
+# Pause play button - on Pin10
 GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 10 to be an input pin and set initial value to be pulled low (off)
 GPIO.add_event_detect(10, GPIO.RISING, callback=play_pause_song(playback_state))  # Setup event on pin 10 rising edge
+# Skip button - on Pin11
+GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 11 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(11, GPIO.RISING, callback=skip_song())  # Setup event on pin 11 rising edge
+# Volume up button - on Pin12
+GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 12 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(12, GPIO.RISING, calback=volume_up(current_volume))  # Setup event on pin 12 rising edge
+# Volume down button - on Pin13
+GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 13 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(13, GPIO.RISING, calback=volume_down(current_volume))  # Setup event on pin 13 rising edge
 
 # Main software loop
 while loop_running:
-    song_info = get_current_song_info()
-print(song_info)
-request = input("What would you like to do? \n")
-
-if request.lower() == "play song":
-    song = input("What song would you like to hear? \n")
-
-    if song.lower() == "enemy":
-        playback_state = add_to_queue("spotify:track:1r9xUipOqoNwggBpENDsvJ")
-        track_info = get_current_song_info()
-    elif song.lower() == "warriors":
-        playback_state = add_to_queue("spotify:track:1lgN0A2Vki2FTON5PYq42m")
-        track_info = get_current_song_info()
-    elif song.lower() == "never gonna give you up":
-        playback_state = add_to_queue("spotify:track:4cOdK2wGLETKBW3PvgPWqT")
-        track_info = get_current_song_info()
-    elif song.lower() == "spooky scary skeletons":
-        playback_state = add_to_queue("spotify:track:1sUdq3kWa9dJXHu3eYOUll")
-        track_info = get_current_song_info()
-    elif song.lower() == "guns for hire":
-        playback_state = add_to_queue("spotify:track:2H3HPGuPyhcbg5AqoQ4BWr")
-        track_info = get_current_song_info()
-    else:
-        print("Invalid Song, please enter a valid song")
-elif request.lower() == "play podcast":
-    add_to_queue(get_most_recent_podcast("spotify:show:4rOoJ6Egrf8K2IrywzwOMk"))
+    input_text = reader.read()
+    playback_state = add_to_queue(input_text)
     track_info = get_current_song_info()
-elif request.lower() == "skip":
-    skip_song()
-elif request.lower() == "return":
-    return_to_song()
-elif GPIO.input(10) == GPIO.RISING:
-    playback_state = play_pause_song(playback_state)
-elif request.lower() == "lower":
-    current_volume = volume_down(current_volume)
-elif request.lower() == "higher":
-    current_volume = volume_up(current_volume)
-elif request.lower() == "end session":
-    if playback_state:
-        playback_state = play_pause_song(playback_state)
-    loop_running = False
-else:
-    print("Invalid Command")
 
 GPIO.cleanup()
