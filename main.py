@@ -122,8 +122,8 @@ GPIO.setwarnings(False)  # Ignore warning for now
 GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
 
 # Return button - on Pin 9
-GPIO.setup(9, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 9 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(9, GPIO.RISING)  # Setup event on pin 9 rising edge
+GPIO.setup(8, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 9 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(8, GPIO.RISING)  # Setup event on pin 9 rising edge
 # Pause play button - on Pin10
 GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 10 to be an input pin and set initial value to be pulled low (off)
 GPIO.add_event_detect(10, GPIO.RISING)  # Setup event on pin 10 rising edge
@@ -143,13 +143,13 @@ while loop_running:
         id, input_text = reader.read()
         playback_state = add_to_queue(input_text)
         track_info = get_current_song_info()
-    elif GPIO.event_detected(9) and GPIO.event_detected(11):
+    elif GPIO.event_detected(8) and GPIO.event_detected(11):
         if playback_state:
             playback_state = play_pause_song(playback_state)
             loop_running = False
     elif GPIO.event_detected(11):
         skip_song()
-    elif GPIO.event_detected(9):
+    elif GPIO.event_detected(8):
         return_to_song()
     elif GPIO.event_detected(10):
         playback_state = play_pause_song(playback_state)
