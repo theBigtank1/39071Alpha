@@ -2,6 +2,9 @@
 # API Interface Code
 # Written by Tanner Krauter
 
+# TODO: get input info and modify event triggers, GUI Implementation (Ranishka)
+
+
 # imports the spotipy library
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -15,7 +18,7 @@ import time
 # Define key variables
 username = 'tawseefpatel'
 clientID = '0e82adf631c444569cce986dea9e374c'
-clientSecret = '3a757ec0b128429c85335863da705696'
+clientSecret = '----'
 redirectURI = 'https://www.google.ca/'
 playback_state = False
 loop_running = True
@@ -115,28 +118,45 @@ def volume_down(volume):
         return volume - 10
 
 
+GPIO.setwarnings(False)  # Ignore warning for now
 GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
 
 # Return button - on Pin 9
-GPIO.setup(8, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 9 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(8, GPIO.RISING, callback=return_to_song())  # Setup event on pin 9 rising edge
+GPIO.setup(9, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 9 to be an input pin and set initial value to be pulled low (off)
+GPIO.add_event_detect(9, GPIO.RISING)  # Setup event on pin 9 rising edge
 # Pause play button - on Pin10
 GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 10 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(10, GPIO.RISING, callback=play_pause_song(playback_state))  # Setup event on pin 10 rising edge
+GPIO.add_event_detect(10, GPIO.RISING)  # Setup event on pin 10 rising edge
 # Skip button - on Pin11
 GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 11 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(11, GPIO.RISING, callback=skip_song())  # Setup event on pin 11 rising edge
+GPIO.add_event_detect(11, GPIO.RISING)  # Setup event on pin 11 rising edge
 # Volume up button - on Pin12
 GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 12 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(12, GPIO.RISING, calback=volume_up(current_volume))  # Setup event on pin 12 rising edge
+GPIO.add_event_detect(12, GPIO.RISING)  # Setup event on pin 12 rising edge
 # Volume down button - on Pin13
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set pin 13 to be an input pin and set initial value to be pulled low (off)
-GPIO.add_event_detect(13, GPIO.RISING, calback=volume_down(current_volume))  # Setup event on pin 13 rising edge
+GPIO.add_event_detect(13, GPIO.RISING)  # Setup event on pin 13 rising edge
 
 # Main software loop
 while loop_running:
-    #nput_text = reader.read()
-    playback_state = add_to_queue(input_text)
-    track_info = get_current_song_info()
+    if GPIO.event_detected(12) and GPIO.event_detected(13):
+        id, input_text = reader.read()
+        playback_state = add_to_queue(input_text)
+        track_info = get_current_song_info()
+    elif GPIO.event_detected(9) and GPIO.event_detected(11):
+        if playback_state:
+            playback_state = play_pause_song(playback_state)
+            loop_running = False
+    elif GPIO.event_detected(11):
+        skip_song()
+    elif GPIO.event_detected(9):
+        return_to_song()
+    elif GPIO.event_detected(10):
+        playback_state = play_pause_song(playback_state)
+    elif GPIO.event_detected(13):
+        current_volume = volume_down(current_volume)
+    elif GPIO.event_detected(12):
+        current_volume = volume_up(current_volume)
+    
 
 GPIO.cleanup()
