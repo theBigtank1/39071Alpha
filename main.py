@@ -72,7 +72,7 @@ def play_pause_song(is_playing):
         sp.pause_playback(device_id)
         return False
     else:
-        sp.start_playback('ab0bc3e6e491c36b242dc54eff8d7a61373ae60f')
+        sp.start_playback(device_id)
         return True
 
 
