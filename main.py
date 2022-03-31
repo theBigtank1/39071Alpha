@@ -141,7 +141,8 @@ GPIO.add_event_detect(13, GPIO.RISING)  # Setup event on pin 13 rising edge
 while loop_running:
     if GPIO.event_detected(12) and GPIO.event_detected(13):
         id, input_text = reader.read()
-        playback_state = add_to_queue(input_text)
+        final_uri = input_text.strip()
+        playback_state = add_to_queue(final_uri)
         track_info = get_current_song_info()
     elif GPIO.event_detected(8) and GPIO.event_detected(11):
         if playback_state:
